@@ -29,12 +29,11 @@ class MainActivity : AppCompatActivity() {
     private fun calculatorApp() {
         Observable.create<String> { emitter ->
             binding.input.doOnTextChanged { text, start, before, count ->
-               // if (count != 0)
                     emitter.onNext(text.toString())
                }
             }
             .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+
             .debounce(1.5.toLong(),TimeUnit.SECONDS)
             .subscribe (
                 { onNext ->
@@ -42,6 +41,7 @@ class MainActivity : AppCompatActivity() {
                 },
                    { onError->
 
+                       Log.i(tag , "this is Error")
                    })
     }
 
@@ -50,9 +50,18 @@ class MainActivity : AppCompatActivity() {
     private fun foo(it: String?):Double{
         val interpreter = Interpreter()
         interpreter.eval("result =$it")
+        if (it != null) {
+            if (it.isEmpty())
+                interpreter.eval("result = ${0.0}")
+            else
+                interpreter.eval("result = $it")
+        }
 
         return interpreter.get("result").toString().toDouble()
     }
 
+    companion object {
+        const val tag = "calculator"
+    }
 
 }
